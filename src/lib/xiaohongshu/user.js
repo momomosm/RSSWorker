@@ -47,10 +47,13 @@ let deal = async (ctx) => {
 				const coverUrl = noteCard.cover.infoList.pop().url;
 				const guid = coverUrl.slice(-57); // 生成 guid
 
+				// Extract content from noteCard (assuming there is a content property)
+				const content = noteCard.content || 'No content available';
+
 				return {
 					title: noteCard.displayTitle,
 					link: `${url}/${noteCard.noteId}`,
-					description: `<img src ="${coverUrl}"><br>${noteCard.displayTitle}`,
+					description: `<img src="${coverUrl}"><br>${noteCard.displayTitle}<br>${content}`,
 					author: noteCard.user.nickname,
 					upvotes: noteCard.interactInfo.likedCount,
 					guid: guid, // 添加 guid 字段
@@ -72,10 +75,13 @@ let deal = async (ctx) => {
 			const coverUrl = item.cover.info_list.pop().url;
 			const guid = coverUrl.slice(-57); // 生成 guid
 
+			// Extract content from item (assuming there is a content property)
+			const content = item.content || 'No content available';
+
 			return {
 				title: item.display_title,
 				link: `${url}/${item.note_id}`,
-				description: `<img src ="${coverUrl}"><br>${item.display_title}`,
+				description: `<img src="${coverUrl}"><br>${item.display_title}<br>${content}`,
 				author: item.user.nickname,
 				upvotes: item.interact_info.likedCount,
 				guid: guid, // 添加 guid 字段
