@@ -27,8 +27,6 @@ let getUser = async (url) => {
 };
 
 let deal = async (ctx) => {
-	// const uid = ctx.params.user_id;
-	// const category = ctx.params.category;
 	const { uid } = ctx.req.param();
 	const category = 'notes';
 	const url = `https://www.xiaohongshu.com/user/profile/${uid}`;
@@ -45,14 +43,21 @@ let deal = async (ctx) => {
 
 	const renderNote = (notes) =>
 		notes.flatMap((n) =>
-			n.map(({ noteCard }) => ({
-				title: noteCard.displayTitle,
-				link: `${url}/${noteCard.noteId}`,
-				description: `<img src ="${noteCard.cover.infoList.pop().url}"><br>${noteCard.displayTitle}`,
-				author: noteCard.user.nickname,
-				upvotes: noteCard.interactInfo.likedCount,
-			}))
+			n.map(({ noteCard }) => {
+				const coverUrl = noteCard.cover.infoList.pop().url;
+				const guid = coverUrl.slice(-57); // 生成 guid
+
+				return {
+					title: noteCard.displayTitle,
+					link: `${url}/${noteCard.noteId}`,
+					description: `<img src ="${coverUrl}"><br>${noteCard.displayTitle}`,
+					author: noteCard.user.nickname,
+					upvotes: noteCard.interactInfo.likedCount,
+					guid: guid, // 添加 guid 字段
+				};
+			})
 		);
+
 	const renderCollect = (collect) => {
 		if (!collect) {
 			throw Error('该用户已设置收藏内容不可见');
@@ -63,16 +68,22 @@ let deal = async (ctx) => {
 		if (!collect.data.notes.length) {
 			throw ctx.throw(403, '该用户已设置收藏内容不可见');
 		}
-		return collect.data.notes.map((item) => ({
-			title: item.display_title,
-			link: `${url}/${item.note_id}`,
-			description: `<img src ="${item.cover.info_list.pop().url}"><br>${item.display_title}`,
-			author: item.user.nickname,
-			upvotes: item.interact_info.likedCount,
-		}));
+		return collect.data.notes.map((item) => {
+			const coverUrl = item.cover.info_list.pop().url;
+			const guid = coverUrl.slice(-57); // 生成 guid
+
+			return {
+				title: item.display_title,
+				link: `${url}/${item.note_id}`,
+				description: `<img src ="${coverUrl}"><br>${item.display_title}`,
+				author: item.user.nickname,
+				upvotes: item.interact_info.likedCount,
+				guid: guid, // 添加 guid 字段
+			};
+		});
 	};
 
-    ctx.header('Content-Type', 'application/xml');
+	ctx.header('Content-Type', 'application/xml');
 	return ctx.text(
 		renderRss2({
 			title,
